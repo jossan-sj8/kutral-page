@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kütral · Supercomputación UOH — Servicios de cómputo de alto rendimiento</title>
+<meta name="description" content="Kütral, el clúster de cómputo de alto rendimiento de la Universidad de O’Higgins. Cómputo HPC y GPU, almacenamiento científico, genómica e inteligencia artificial para investigación, salud e industria.">
+<!--
+  ============================================================================
+  Página del servicio · Kütral (clúster HPC de la Universidad de O'Higgins)
+  ----------------------------------------------------------------------------
+  · Archivo único: sin dependencias externas, funciona offline.
+  · Nombre del clúster: "Kütral", siempre con diéresis en el texto visible.
+    Los dominios, correos y nombres de archivo se escriben sin diéresis
+    (hpc-uoh.cl, sequoh.cl, hpc@uoh.cl, seq@uoh.cl, video-kutral.html).
+  · Cifras (equipo del proyecto, 2026): 41 nodos, 1.100+ núcleos de CPU, 7 TB de
+    RAM, 757 TB de almacenamiento y red InfiniBand de 40 Gb/s.
+  ============================================================================
+-->
+<script>document.documentElement.classList.add('js');</script>
+<style>
+/* ============================ TOKENS ============================ */
+:root{
+  --bg:#F5F8FC; --surface:#FFFFFF;
+  --ink:#0C1A2B; --ink2:#41536A; --muted:#7488A0;
+  --line:#DFE7F1; --line2:#EDF2F8;
+  --brand:#1668D6; --brand-2:#3FA2FF; --brand-3:#7CC2FF;
+  --deep:#07203C; --deeper:#04121F;
+  --accent:#19C99A; --warn:#E08A00;
+  --radius:16px; --radius-sm:12px;
+  --shadow-s:0 1px 2px rgba(7,32,60,.06), 0 2px 8px rgba(7,32,60,.05);
+  --shadow-m:0 4px 12px rgba(7,32,60,.07), 0 18px 40px rgba(7,32,60,.09);
+  --maxw:1280px; --hdr:112px;
+  --font:"Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html{font-size:17px; scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--font);
+  font-size:18px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img,svg{max-width:100%}
+h1,h2,h3,h4{line-height:1.15; margin:0; font-weight:800; letter-spacing:-.015em}
+p{margin:0 0 14px}
+a{color:var(--brand); text-decoration:none}
+
+/* ============================ LAYOUT ============================ */
+.wrap{width:100%; max-width:var(--maxw); margin:0 auto; padding:0 24px}
+section{padding:96px 0; position:relative; scroll-margin-top:calc(var(--hdr) + 12px)}
+section.tight{padding:72px 0}
+.sec-head{max-width:760px; margin-bottom:44px}
+.sec-head.center{margin-left:auto; margin-right:auto; text-align:center}
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px; text-transform:uppercase;
+  font-size:.76rem; font-weight:800; letter-spacing:.14em; color:var(--brand);
+  margin-bottom:14px;
+}
+.eyebrow::before{content:""; width:22px; height:2px; background:var(--brand); border-radius:2px}
+.sec-head.center .eyebrow::before{display:none}
+h2.sec{font-size:clamp(1.7rem,1.1rem + 1.9vw,2.6rem); margin-bottom:18px}
+.lead{font-size:1.09rem; color:var(--ink2); line-height:1.7}
+
+/* ============================ HEADER ============================ */
+#hdr{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(255,255,255,.95);
+  -webkit-backdrop-filter:blur(12px) saturate(160%); backdrop-filter:blur(12px) saturate(160%);
+  border-bottom:1px solid var(--line);
+  box-shadow:0 1px 2px rgba(7,32,60,.04);
+  transition:box-shadow .3s;
+}
+#hdr.stuck{box-shadow:0 6px 22px rgba(7,32,60,.09)}
+.hwrap{
+  max-width:var(--maxw); margin:0 auto; padding:0 24px;
+  height:var(--hdr); display:flex; align-items:center; gap:18px;
+}
+.brand{display:flex; align-items:center; gap:11px; color:var(--ink); font-weight:800; flex:none}
+.brand .mark{width:56px; height:56px; flex:none; animation:markPulse 3.6s ease-in-out infinite}
+@keyframes markPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.brand:hover .mark{animation-duration:1.5s}
+.brand .mark polygon{stroke:#0E4FA8; stroke-width:1.1; stroke-linejoin:round}
+.brand .mark .hx{transform-box:fill-box; transform-origin:center; animation:drift 5s ease-in-out infinite}
+.brand .mark .h1{fill:#1668D6; animation-duration:5.4s}
+.brand .mark .h2{fill:#3FA2FF; animation-duration:6.2s; animation-delay:-.9s}
+.brand .mark .h3{fill:#9DCEFF; animation-duration:4.8s; animation-delay:-1.8s}
+.brand .mark .h4{fill:#EEF6FF; animation-duration:5.8s; animation-delay:-2.7s}
+.brand .mark .h5{fill:#1668D6; animation-duration:5.1s; animation-delay:-3.6s}
+@keyframes drift{0%,100%{transform:translate(0,0)}33%{transform:translate(.7px,-.8px)}66%{transform:translate(-.7px,.6px)}}
+.brand .txt{display:flex; flex-direction:column; line-height:1.15}
+.brand .txt b{font-size:1.35rem}
+.brand .txt small{font-size:.9rem; font-weight:600; color:var(--muted); letter-spacing:.01em}
+nav.main{margin-left:auto; display:flex; align-items:center; gap:4px}
+nav.main a{
+  position:relative; white-space:nowrap; color:var(--ink2); font-size:1rem; font-weight:600;
+  padding:10px 14px; border-radius:8px; transition:color .2s, background .2s;
+}
+nav.main a:hover{color:var(--brand); background:rgba(22,104,214,.07)}
+nav.main a.on{color:var(--brand)}
+nav.main a.on::after{
+  content:""; position:absolute; left:12px; right:12px; bottom:4px; height:2px;
+  background:var(--brand); border-radius:2px;
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; white-space:nowrap;
+  padding:12px 20px; border-radius:11px; font-weight:700; font-size:.92rem;
+  border:1.5px solid transparent; cursor:pointer; transition:transform .2s, box-shadow .25s, background .25s, color .25s, border-color .25s;
+}
+.btn-primary{background:linear-gradient(135deg,var(--brand) 0%, #0E56B8 100%); color:#fff; box-shadow:0 8px 20px rgba(22,104,214,.28)}
+.btn-primary:hover{transform:translateY(-2px); box-shadow:0 14px 28px rgba(22,104,214,.34)}
+.btn-ghost{border-color:rgba(255,255,255,.4); color:#fff}
+.btn-ghost:hover{background:rgba(255,255,255,.14); transform:translateY(-2px)}
+.btn-outline{border-color:var(--line); color:var(--ink); background:#fff}
+.btn-outline:hover{border-color:var(--brand); color:var(--brand); transform:translateY(-2px)}
+.hdrbtn{margin-left:6px}
+.burger{display:none; margin-left:auto; width:42px; height:42px; border:1px solid var(--line); background:#fff; border-radius:11px; cursor:pointer}
+.burger span{display:block; width:18px; height:2px; background:var(--ink); margin:3px auto; border-radius:2px; transition:.25s}
+#prog{position:fixed; top:0; left:0; height:3px; width:0; z-index:101; background:linear-gradient(90deg,var(--brand),var(--accent))}
+@media (max-width:1080px){
+  :root{--hdr:88px}
+  nav.main{display:none} .burger{display:block} .hdrbtn{display:none}
+  .brand .mark{width:48px; height:48px}
+}
+@media (max-width:900px){
+  .brand .txt small{display:none}
+  .brand .mark{width:44px; height:44px}
+  .brand .txt b{font-size:1.18rem}
+}
+@media (max-width:520px){
+  :root{--hdr:76px}
+  .brand .mark{width:38px; height:38px}
+  .brand .txt b{font-size:1.08rem}
+  .brand .txt small{display:none}
+}
+@media (max-width:1080px){
+  #mobile{display:none}
+  #mobile.open{
+    display:block; position:fixed; inset:var(--hdr) 0 0 0; background:#fff; z-index:99; padding:24px 28px; overflow:auto;
+  }
+  #mobile a{display:block; padding:16px 4px; font-size:1.15rem; font-weight:700; color:var(--ink); border-bottom:1px solid var(--line2)}
+  #mobile .btn{width:100%; margin-top:22px}
+}
+@media (min-width:1081px){ #mobile{display:none!important} }
+
+/* ============================ HERO ============================ */
+.hero{
+  position:relative; padding:calc(var(--hdr) + 52px) 0 76px; overflow:hidden;
+  background:linear-gradient(165deg,#062038 0%, #0A2A4C 55%, #04121F 100%); color:#fff;
+}
+#net{position:absolute; inset:0; width:100%; height:100%; display:block; opacity:.85}
+.hero .glow{
+  position:absolute; border-radius:50%; filter:blur(70px); pointer-events:none;
+}
+.hero .g1{width:520px; height:520px; background:rgba(63,162,255,.45); top:-160px; right:-80px; animation:float1 14s ease-in-out infinite}
+.hero .g2{width:420px; height:420px; background:rgba(25,201,154,.28); bottom:-160px; left:-100px; animation:float2 17s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,30px)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,-26px)}}
+.hero .wrap{position:relative; z-index:2}
+.hero .eyebrow{color:var(--brand-3)}
+.hero .eyebrow::before{background:var(--brand-3)}
+.hero h1{
+  font-size:clamp(2.1rem,1.3rem + 3.1vw,3.6rem); max-width:19ch; margin:0 0 20px;
+}
+.hero h1 .grad{
+  background:linear-gradient(100deg,#7CC2FF 0%, #3FA2FF 45%, #19C99A 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero p.lead{color:#BFD4EA; max-width:60ch; font-size:1.12rem}
+.hero .cta{display:flex; flex-wrap:wrap; gap:14px; margin-top:30px}
+.hero-stats{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:46px;
+  border-top:1px solid rgba(255,255,255,.16); padding-top:26px;
+}
+.hero-stats > div{padding:0 22px; border-left:1px solid rgba(255,255,255,.14)}
+.hero-stats > div:first-child{border-left:0; padding-left:0}
+.hero-stats b{display:block; font-size:clamp(1.5rem,1rem + 1.1vw,2.05rem); font-weight:800; letter-spacing:-.02em}
+.hero-stats span{font-size:.85rem; color:#9FB9D4}
+.hero-stats i{display:block; height:3px; width:38px; margin-top:12px; border-radius:3px; background:linear-gradient(90deg,var(--brand-2),var(--accent))}
+@media (max-width:820px){ .hero-stats{grid-template-columns:1fr 1fr; gap:22px 0} .hero-stats > div:nth-child(3){border-left:0; padding-left:0} }
+
+/* ============================ INSTITUCIÓN (franja final) ============================ */
+.partners{background:#fff; border-top:1px solid var(--line); padding:44px 0}
+.partners .logos{display:flex; align-items:center; justify-content:center}
+.partners .logos img{
+  width:280px; height:88px; object-fit:contain;
+  filter:grayscale(1); opacity:.55;
+  transition:filter .35s ease, opacity .35s ease, transform .35s ease;
+}
+.partners .logos img:hover{filter:none; opacity:1; transform:translateY(-3px)}
+@media (max-width:900px){ .partners .logos img{width:220px; height:70px} }
+@media (max-width:520px){ .partners .logos img{width:180px; height:58px} }
+
+/* ============================ REVEAL ============================ */
+.reveal{transition:opacity .7s cubic-bezier(.2,.8,.2,1), transform .7s cubic-bezier(.2,.8,.2,1)}
+html.js .reveal{opacity:0; transform:translateY(26px)}
+html.js .reveal.in{opacity:1; transform:none}
+
+/* ============================ CARDS / GRIDS ============================ */
+.grid{display:grid; gap:20px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:26px; box-shadow:var(--shadow-s); position:relative; overflow:hidden;
+  transition:transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s, border-color .3s;
+}
+.card::before{
+  content:""; position:absolute; inset:0 0 auto 0; height:3px;
+  background:linear-gradient(90deg,var(--brand),var(--accent));
+  transform:scaleX(0); transform-origin:left; transition:transform .4s cubic-bezier(.2,.8,.2,1);
+}
+.card:hover{transform:translateY(-6px); box-shadow:var(--shadow-m); border-color:#CFE0F3}
+.card:hover::before{transform:scaleX(1)}
+.card .ico{
+  width:48px; height:48px; border-radius:13px; display:grid; place-items:center;
+  background:linear-gradient(140deg,#E8F2FE,#F2F8FF); margin-bottom:16px;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1), background .35s;
+}
+.card:hover .ico{transform:translateY(-3px) scale(1.06); background:linear-gradient(140deg,#DCEBFF,#EAF4FF)}
+.card .ico svg{width:24px; height:24px}
+.card h3{font-size:1.12rem; margin-bottom:8px}
+.card p{color:var(--ink2); font-size:.96rem; margin:0}
+.chip{
+  display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+  padding:4px 10px; border-radius:999px; margin-top:16px;
+}
+.chip.ready{background:#E4F7EF; color:#0B7A56}
+.chip.soon{background:#FDF3DC; color:#8A5A00}
+
+/* --- grupos de servicios (lista en dos columnas) --- */
+.svcgroup{margin-top:54px}
+.sec-head + .svcgroup{margin-top:0}
+.svcgroup > h3{
+  display:inline-block; font-size:1.18rem; margin:0 0 4px; padding-bottom:10px;
+  border-bottom:2px solid var(--brand);
+}
+.svclist{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr 1fr; column-gap:56px}
+@media (max-width:860px){ .svclist{grid-template-columns:1fr} }
+.svclist li{display:flex; gap:16px; align-items:flex-start; padding:22px 2px; border-bottom:1px solid var(--line2)}
+.svclist li > .ico{
+  width:44px; height:44px; flex:none; border-radius:12px; display:grid; place-items:center;
+  background:linear-gradient(140deg,#E8F2FE,#F2F8FF); transition:transform .3s cubic-bezier(.2,.8,.2,1), background .3s;
+}
+.svclist li:hover > .ico{transform:translateY(-2px) scale(1.06); background:linear-gradient(140deg,#DCEBFF,#EAF4FF)}
+.svclist li > .ico svg{width:22px; height:22px}
+.svclist li > div > b{display:block; font-size:1.04rem; margin-bottom:5px}
+.svclist .desc{color:var(--ink2); font-size:.95rem; line-height:1.6}
+.also{
+  margin-top:44px; background:#F7FAFE; border:1px dashed #CFE0F3; border-radius:14px;
+  padding:20px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:12px 24px;
+}
+.also strong{font-size:.95rem}
+.also ul{list-style:none; display:flex; flex-wrap:wrap; gap:10px 22px; margin:0; padding:0}
+.also li{font-size:.93rem; color:var(--ink2); font-weight:600}
+.also li::before{content:"+"; color:var(--brand); font-weight:800; margin-right:8px}
+
+/* ============================ DIAGRAMA (flujo horizontal) ============================ */
+.diagram{display:block}
+.dia-head{max-width:820px}
+.dia-box{margin-top:40px}
+.dia-box svg{display:block; width:100%; height:auto}
+.link{stroke:#B9D4F0; stroke-width:2; fill:none; stroke-dasharray:9 7; animation:dash 2.6s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-32}}
+.pkt{filter:drop-shadow(0 0 4px rgba(22,104,214,.30))}
+.pkt.in{fill:#9DCEFF}
+.pkt.task{fill:#3FA2FF}
+.pkt.out{fill:#19C99A}
+.nd{fill:#EEF6FF; stroke:#1668D6; stroke-width:2}
+.nd.core{fill:#1668D6}
+.ndlbl{fill:#0C1A2B; font:700 13px var(--font)}
+.ndlbl.on{fill:#FFFFFF}
+.ndlbl.sub{fill:#BBD9FF}
+.cap{fill:#7488A0; font:800 11px var(--font); letter-spacing:.14em}
+.pulse{transform-box:fill-box; transform-origin:center; animation:pulse 3.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.7}50%{opacity:1}}
+.steps{list-style:none; margin:38px 0 0; padding:0; display:grid; grid-template-columns:repeat(3,1fr); gap:26px 36px; counter-reset:s}
+.steps li{position:relative; padding:0; counter-increment:s}
+.steps li::before{
+  content:counter(s); display:grid; place-items:center; width:40px; height:40px; border-radius:50%;
+  font-weight:800; font-size:.98rem; color:#fff; margin-bottom:14px;
+  background:linear-gradient(135deg,var(--brand),#0E4FA8); box-shadow:0 6px 16px rgba(22,104,214,.3);
+}
+.steps b{display:block; font-size:1.08rem; margin-bottom:6px}
+.steps span{color:var(--ink2); font-size:.97rem; line-height:1.55}
+@media (max-width:820px){ .steps{grid-template-columns:1fr; gap:22px} }
+.dia-note{
+  max-width:820px; margin:38px 0 0; padding-top:24px; border-top:1px solid var(--line);
+  font-size:1.12rem; line-height:1.6; color:var(--ink2);
+}
+.dia-note b{color:var(--brand); font-weight:800}
+
+/* ============================ FILTROS ============================ */
+.filters{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:30px}
+.filters button{
+  border:1px solid var(--line); background:#fff; color:var(--ink2); font:inherit; font-size:.88rem; font-weight:700;
+  padding:9px 18px; border-radius:999px; cursor:pointer; transition:.25s;
+}
+.filters button:hover{border-color:var(--brand-3); color:var(--brand)}
+.filters button.on{background:var(--ink); color:#fff; border-color:var(--ink)}
+.card[hidden]{display:none}
+
+/* ============================ INFRA (bloques) ============================ */
+.infracol{margin-top:54px}
+.sec-head + .infracol{margin-top:0}
+.colh{font-size:1.05rem; font-weight:800; color:var(--ink); margin:0 0 18px}
+.bars2{display:grid; grid-template-columns:1fr 1fr; gap:0 56px}
+@media (max-width:860px){ .bars2{grid-template-columns:1fr} }
+.bar{margin-bottom:24px}
+.bar .top{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:9px}
+.bar .top b{font-size:1.02rem}
+.bar .top em{font-style:normal; font-weight:800; color:var(--brand); font-size:1.02rem}
+.bar .track{height:9px; border-radius:9px; background:var(--line2); overflow:hidden}
+.bar .fill{height:100%; width:0; border-radius:9px; background:linear-gradient(90deg,var(--brand),var(--accent)); transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.bar small{display:block; color:var(--muted); font-size:.82rem; margin-top:7px}
+.stack{display:flex; flex-wrap:wrap; gap:9px; margin-top:6px}
+.stack span{background:#fff; border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:.85rem; font-weight:700; color:var(--ink2); transition:.25s}
+.stack span:hover{border-color:var(--brand); color:var(--brand); transform:translateY(-2px)}
+.swlist{display:grid; grid-template-columns:1fr 1fr; gap:0 56px}
+@media (max-width:860px){ .swlist{grid-template-columns:1fr} }
+.swlist p{margin:0 0 16px; font-size:.98rem; line-height:1.6; color:var(--ink2)}
+.swlist p b{color:var(--ink)}
+.flowlab{font-size:.74rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:28px 0 12px}
+.flowline{display:flex; flex-wrap:wrap; align-items:center; gap:6px}
+.flowline span{background:#fff; border:1px solid var(--line); border-radius:999px; padding:7px 13px; font-size:.84rem; font-weight:700; color:var(--ink2); white-space:nowrap; transition:.25s}
+.flowline span:hover{border-color:var(--brand); color:var(--brand); transform:translateY(-2px)}
+.flowline i{color:var(--brand-2); font-style:normal; font-weight:800; font-size:.9rem}
+.note{background:#fff; border:1px solid var(--line); border-left:4px solid var(--warn); border-radius:12px; padding:16px 20px; margin-top:26px}
+.note p{margin:0; font-size:.9rem; color:var(--ink2)}
+.note b{color:var(--warn)}
+
+/* ============================ BAND (dark) ============================ */
+.band{background:linear-gradient(165deg,#07203C,#04121F); color:#fff}
+.band h2.sec{color:#fff}
+.band .lead{color:#BFD4EA}
+.band .eyebrow{color:var(--brand-3)}
+.band .eyebrow::before{background:var(--brand-3)}
+.band .card{background:rgba(255,255,255,.055); border-color:rgba(255,255,255,.14); box-shadow:none}
+.band .card h3{color:#EAF2FB}
+.band .card p{color:#B8CDE2}
+.band .card:hover{background:rgba(255,255,255,.09); border-color:rgba(124,194,255,.4)}
+.cardhead{display:flex; align-items:center; gap:13px; margin-bottom:13px}
+.cardhead .ico{width:40px; height:40px; margin-bottom:0; flex:none}
+.cardhead h3{margin:0}
+
+/* ============================ TEAM ============================ */
+.team{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px}
+.person{
+  background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px;
+  display:flex; gap:16px; align-items:center; box-shadow:var(--shadow-s); transition:transform .3s, box-shadow .3s;
+}
+.person:hover{transform:translateY(-5px); box-shadow:var(--shadow-m)}
+.avatar{
+  width:54px; height:54px; flex:none; border-radius:50%; display:grid; place-items:center;
+  color:#fff; font-weight:800; font-size:1.02rem; letter-spacing:.02em;
+  background:linear-gradient(135deg,var(--brand),#0E4FA8);
+}
+.person .who b{display:block; font-size:1.02rem}
+.person .who span{font-size:.88rem; color:var(--muted)}
+
+/* ============================ CONTACTO ============================ */
+.contact{display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:start}
+@media (max-width:900px){ .contact{grid-template-columns:1fr} }
+.clist{display:flex; flex-direction:column; gap:30px; padding-top:8px}
+.citem{display:flex; gap:16px; align-items:flex-start}
+.citem svg{width:22px; height:22px; flex:none; margin-top:1px; stroke:#3FA2FF; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.citem span, .citem a{font-size:1.02rem; color:var(--ink2); line-height:1.5}
+.citem a{color:var(--brand); text-decoration:none}
+.citem a:hover{text-decoration:underline}
+.citem b{display:block; color:var(--ink); font-weight:700; margin-bottom:4px}
+.citem .copy{
+  margin-left:-6px; align-self:center; border:0; background:transparent; cursor:pointer;
+  padding:4px; border-radius:8px; display:inline-grid; place-items:center;
+  color:var(--muted); transition:background .2s, color .2s;
+}
+.citem .copy:hover{background:#EAF3FE; color:var(--brand)}
+.citem .copy svg{width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; margin-top:0}
+
+/* ============================ FOOTER ============================ */
+footer.site{background:var(--deeper); color:#9FB9D4; padding:56px 0 40px; font-size:.9rem}
+footer.site a{color:#CBDFF5}
+footer.site a:hover{color:#fff}
+.frow{display:grid; grid-template-columns:1.3fr 1fr 1.1fr; gap:36px}
+@media (max-width:760px){ .frow{grid-template-columns:1fr; gap:28px} }
+.ftitle{font-size:.74rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:#7E9AB4; margin:0 0 14px}
+.flist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+.flist li{font-size:.92rem}
+.fine{margin-top:30px; padding-top:22px; border-top:1px solid rgba(255,255,255,.12); font-size:.82rem; color:#7E9AB4}
+
+/* ============================ TOAST ============================ */
+#toast{
+  position:fixed; left:50%; bottom:34px; transform:translate(-50%,140%);
+  background:var(--ink); color:#fff; padding:13px 22px; border-radius:12px; font-size:.9rem; font-weight:600;
+  box-shadow:var(--shadow-m); z-index:200; transition:transform .35s cubic-bezier(.2,.8,.2,1);
+}
+#toast.show{transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<!-- ============================== HEADER ============================== -->
+<header id="hdr">
+  <div class="hwrap">
+    <a class="brand" href="#top" aria-label="Kütral, inicio">
+      <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+        <polygon class="hx h1" points="40,12 35.5,4.2 26.5,4.2 22,12 26.5,19.8 35.5,19.8"/>
+        <polygon class="hx h2" points="22.5,21 18.25,13.64 9.75,13.64 5.5,21 9.75,28.36 18.25,28.36"/>
+        <polygon class="hx h3" points="40.5,28 36.25,20.64 27.75,20.64 23.5,28 27.75,35.36 36.25,35.36"/>
+        <polygon class="hx h4" points="21.5,34 18.25,28.37 11.75,28.37 8.5,34 11.75,39.63 18.25,39.63"/>
+        <polygon class="hx h5" points="34.5,42 31.25,36.37 24.75,36.37 21.5,42 24.75,47.63 31.25,47.63"/>
+      </svg>
+      <span class="txt">
+        <b>Kütral</b>
+        <small>Supercomputación · Universidad de O’Higgins</small>
+      </span>
+    </a>
+    <nav class="main" id="navmain">
+      <a href="#servicios">Servicios</a>
+      <a href="#casos">Casos de uso</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Menú"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<div id="mobile">
+  <a href="#servicios">Servicios</a>
+  <a href="#casos">Casos de uso</a>
+  <a href="#contacto">Contacto</a>
+</div>
+
+<a id="top"></a>
+
+<!-- ============================== HERO ============================== -->
+<section class="hero">
+  <canvas id="net" aria-hidden="true"></canvas>
+  <div class="glow g1"></div><div class="glow g2"></div>
+  <div class="wrap">
+    <p class="eyebrow">Clúster Kütral · HPC-UOH</p>
+    <h1>Supercomputación para la <span class="grad">investigación, la salud y la industria regional</span></h1>
+    <p class="lead">
+      Kütral es el clúster de cómputo de alto rendimiento de la Universidad de O’Higgins.
+      Procesamos grandes volúmenes de datos y ejecutamos cálculos que un computador común
+      no podría resolver: genómica, inteligencia artificial, imágenes biomédicas y simulación científica.
+    </p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#servicios">Ver servicios</a>
+      <a class="btn btn-ghost" href="#como">¿Cómo funciona?</a>
+    </div>
+
+    <div class="hero-stats">
+      <div><b data-count="41" data-suffix="">0</b><span>Nodos de cálculo</span><i></i></div>
+      <div><b data-count="1100" data-suffix="+">0</b><span>Núcleos (CPU)</span><i></i></div>
+      <div><b data-count="7" data-suffix=" TB">0</b><span>Memoria RAM</span><i></i></div>
+      <div><b data-count="757" data-suffix=" TB">0</b><span>Almacenamiento</span><i></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CÓMO FUNCIONA ============================== -->
+<section id="como">
+  <div class="wrap">
+    <div class="diagram">
+      <div class="dia-head reveal">
+        <h2 class="sec">Cómputo paralelo: del problema grande al resultado en horas</h2>
+        <p class="lead">
+          Kütral integra <b>nodos</b> de cálculo interconectados por una red de alta velocidad. Un
+          <b>planificador</b> distribuye cada trabajo entre los recursos disponibles y los nodos lo
+          resuelven de forma simultánea.
+        </p>
+      </div>
+
+      <ol class="steps reveal">
+        <li><b>Descomposición</b><span>El cálculo se fragmenta en tareas independientes que pueden ejecutarse en paralelo.</span></li>
+        <li><b>Distribución</b><span>El planificador asigna cada tarea a los nodos disponibles según la carga y los recursos requeridos.</span></li>
+        <li><b>Consolidación</b><span>Los resultados parciales se integran en una salida única, con trazabilidad de versiones y parámetros.</span></li>
+      </ol>
+
+      <p class="dia-note reveal">
+        Lo que en un equipo de escritorio tomaría <b>semanas</b>, aquí se resuelve en <b>horas</b>.
+        No cambias tu metodología, cambias la escala de lo que puedes calcular.
+      </p>
+
+      <div class="dia-box reveal">
+        <svg viewBox="0 0 920 320" role="img" aria-label="Flujo de un trabajo: los datos salen del almacenamiento, el planificador reparte las tareas entre los nodos y los resultados vuelven al almacenamiento">
+          <text class="cap" x="111" y="26" text-anchor="middle">DATOS</text>
+          <text class="cap" x="330" y="26" text-anchor="middle">COLA</text>
+          <text class="cap" x="600" y="26" text-anchor="middle">CÁLCULO</text>
+          <text class="cap" x="807" y="26" text-anchor="middle">RESULTADOS</text>
+
+          <g>
+            <path class="link" d="M192 156 L268 156"/>
+            <path class="link" d="M392 156 L558 80"/>
+            <path class="link" d="M392 156 L558 156"/>
+            <path class="link" d="M392 156 L558 232"/>
+            <path class="link" d="M642 80 L726 156"/>
+            <path class="link" d="M642 156 L726 156"/>
+            <path class="link" d="M642 232 L726 156"/>
+          </g>
+
+          <circle class="pkt in" r="5"><animateMotion dur="2.4s" repeatCount="indefinite" path="M192 156 L268 156"/></circle>
+          <circle class="pkt task" r="5"><animateMotion dur="2.2s" repeatCount="indefinite" path="M392 156 L558 80"/></circle>
+          <circle class="pkt task" r="5"><animateMotion dur="2.2s" begin="0.5s" repeatCount="indefinite" path="M392 156 L558 156"/></circle>
+          <circle class="pkt task" r="5"><animateMotion dur="2.2s" begin="1s" repeatCount="indefinite" path="M392 156 L558 232"/></circle>
+          <circle class="pkt out" r="5"><animateMotion dur="2.6s" begin="0.3s" repeatCount="indefinite" path="M642 80 L726 156"/></circle>
+          <circle class="pkt out" r="5"><animateMotion dur="2.6s" begin="0.8s" repeatCount="indefinite" path="M642 156 L726 156"/></circle>
+          <circle class="pkt out" r="5"><animateMotion dur="2.6s" begin="1.3s" repeatCount="indefinite" path="M642 232 L726 156"/></circle>
+
+          <rect class="nd" x="30" y="118" width="162" height="76" rx="14"/>
+          <text class="ndlbl" x="111" y="163" text-anchor="middle">almacenamiento</text>
+
+          <circle class="nd core" cx="330" cy="156" r="62"/>
+          <text class="ndlbl on" x="330" y="152" text-anchor="middle" style="font-size:15px">planificador</text>
+          <text class="ndlbl sub" x="330" y="171" text-anchor="middle" style="font-size:11.5px">cola de trabajos</text>
+
+          <g class="pulse">
+            <circle class="nd" cx="600" cy="80" r="40"/>
+            <circle class="nd" cx="600" cy="156" r="40"/>
+            <circle class="nd" cx="600" cy="232" r="40"/>
+          </g>
+          <text class="ndlbl" x="600" y="86" text-anchor="middle">nodo</text>
+          <text class="ndlbl" x="600" y="162" text-anchor="middle">nodo</text>
+          <text class="ndlbl" x="600" y="238" text-anchor="middle">nodo</text>
+
+          <rect class="nd" x="726" y="118" width="162" height="76" rx="14"/>
+          <text class="ndlbl" x="807" y="163" text-anchor="middle">almacenamiento</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== SERVICIOS ============================== -->
+<section id="servicios" style="background:#fff; border-top:1px solid var(--line); border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <p class="eyebrow">Servicios</p>
+      <h2 class="sec">Capacidades y servicios</h2>
+      <p class="lead">
+        Ofrecemos cómputo y datos, análisis y desarrollo, y acompañamiento científico.
+      </p>
+    </div>
+
+    <div class="svcgroup reveal">
+      <h3>Cómputo y datos</h3>
+      <ul class="svclist">
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1668D6" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01M7 17h.01"/></svg></span>
+          <div><b>Cómputo por demanda</b><span class="desc">Horas de cálculo y de GPU para proyectos puntuales, ya sea procesamiento por lotes, simulaciones o entrenamiento de modelos, sin invertir en infraestructura propia.</span></div>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1668D6" stroke-width="1.9" stroke-linecap="round"><path d="M12 3l8 4v6c0 4.4-3.3 7.4-8 8.6-4.7-1.2-8-4.2-8-8.6V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg></span>
+          <div><b>Cómputo seguro para datos sensibles</b><span class="desc">Procesamiento de datos clínicos y regulados dentro de la infraestructura de la UOH, sin sacarlos de la institución.</span></div>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1668D6" stroke-width="1.9" stroke-linecap="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span>
+          <div><b>Almacenamiento, respaldo y custodia</b><span class="desc">Guardado, respaldo y archivo de grandes volúmenes de datos, con residencia en Chile.</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="svcgroup reveal">
+      <h3>Análisis y desarrollo</h3>
+      <ul class="svclist">
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1668D6" stroke-width="1.9" stroke-linecap="round"><path d="M7 3c3 0 3 4 6 4s3-4 6-4M7 21c3 0 3-4 6-4s3 4 6 4"/><path d="M7 3v18M17 3v18"/></svg></span>
+          <div><b>Bioinformática y genómica por encargo</b><span class="desc">Con el laboratorio <b>SeqUOH</b>, cubrimos preparación de muestras, secuenciación y análisis bioinformático, de la muestra al resultado.</span></div>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1668D6" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M3 18l5-4 4 3 3-3 6 5"/></svg></span>
+          <div><b>Imágenes biomédicas y patología digital</b><span class="desc">Procesamiento de imágenes de anatomía patológica y otros exámenes, con apoyo de IA para agilizar diagnósticos.</span></div>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1668D6" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h6M14 6h6M4 12h12M4 18h16"/><circle cx="12" cy="6" r="2"/><circle cx="18" cy="12" r="2"/></svg></span>
+          <div><b>Flujos reproducibles y automatización</b><span class="desc">Diseñamos y dejamos funcionando el proceso: un análisis que se repite solo, de forma trazable y reproducible.</span></div>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1668D6" stroke-width="1.9" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <div><b>Modelos de IA a medida</b><span class="desc">Entrenamiento de modelos de predicción, visión computacional o texto sobre GPU, con los datos del proyecto.</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="svcgroup reveal">
+      <h3>Acompañamiento</h3>
+      <ul class="svclist">
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1668D6" stroke-width="1.9" stroke-linecap="round"><path d="M3 6h11a3 3 0 010 6H6l3-3M21 18H10a3 3 0 010-6h2"/></svg></span>
+          <div><b>Asesoría, diseño de proyecto y capacitación</b><span class="desc">Evaluación técnica y dimensionamiento de recursos, más talleres de formación para equipos.</span></div>
+        </li>
+        <li>
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#1668D6" stroke-width="1.9" stroke-linecap="round"><path d="M4 20h16M4 20V4M8 16l4-6 4 3 4-7"/></svg></span>
+          <div><b>Colaboración I+D y apoyo a fondos</b><span class="desc">Proyectos conjuntos con la universidad y respaldo técnico en postulaciones a fondos y convenios.</span></div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="also reveal">
+      <strong>Y también ofrecemos</strong>
+      <ul>
+        <li>Hospedaje de plataformas institucionales</li>
+        <li>Pruebas de concepto (pilotos)</li>
+        <li>Peritajes y asesoría técnica especializada</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================== INFRAESTRUCTURA ============================== -->
+<section id="infra">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow">Infraestructura</p>
+      <h2 class="sec">El clúster Kütral</h2>
+      <p class="lead">
+        Infraestructura de alto rendimiento para cálculo intensivo y datos masivos, ubicada en el Campus
+        Rancagua de la Universidad de O’Higgins. Disponible para proyectos de investigación, salud e industria.
+      </p>
+    </div>
+
+    <div class="infracol reveal" id="bars">
+      <h3 class="colh">Capacidad</h3>
+      <div class="bars2">
+        <div class="bar"><div class="top"><b>Nodos de cálculo</b><em>41</em></div><div class="track"><div class="fill" data-w="66"></div></div><small>Cada uno, un computador completo</small></div>
+        <div class="bar"><div class="top"><b>Núcleos de cálculo (CPU)</b><em>1.100+</em></div><div class="track"><div class="fill" data-w="84"></div></div><small>Sumados entre todos los nodos</small></div>
+        <div class="bar"><div class="top"><b>Memoria RAM total</b><em>7 TB</em></div><div class="track"><div class="fill" data-w="58"></div></div><small>Memoria compartida para trabajos intensivos</small></div>
+        <div class="bar"><div class="top"><b>Almacenamiento</b><em>757 TB</em></div><div class="track"><div class="fill" data-w="94"></div></div><small>En sistema de archivos paralelo BeeGFS</small></div>
+        <div class="bar"><div class="top"><b>Aceleradores</b><em>Nodos GPU</em></div><div class="track"><div class="fill" data-w="64"></div></div><small>Para entrenamiento de modelos de IA</small></div>
+        <div class="bar"><div class="top"><b>Red</b><em>40 Gb/s</em></div><div class="track"><div class="fill" data-w="76"></div></div><small>InfiniBand conecta los nodos entre sí</small></div>
+      </div>
+    </div>
+
+    <div class="infracol reveal">
+      <h3 class="colh">Flujo principal</h3>
+      <div class="flowline">
+        <span>Preparar los datos</span><i>→</i><span>Enviar el trabajo</span><i>→</i><span>Cola de Slurm</span><i>→</i><span>Cálculo en los nodos</span><i>→</i><span>Resultados</span>
+      </div>
+    </div>
+
+    <div class="infracol reveal">
+      <h3 class="colh">Qué hace cada pieza</h3>
+      <div class="swlist">
+        <p><b>Planificación de trabajos.</b> Slurm recibe cada solicitud, la pone en cola y decide en qué nodos se ejecuta según los recursos que pide (núcleos, memoria, tiempo y GPU). Así varios proyectos comparten el clúster sin interferirse.</p>
+        <p><b>Almacenamiento.</b> BeeGFS es un sistema de archivos paralelo que reparte los datos entre muchos discos y los lee o escribe al mismo tiempo, para que el cálculo no se detenga esperando al disco.</p>
+        <p><b>Análisis.</b> Nextflow encadena los pasos de un análisis y permite repetirlo igual cada vez, con las versiones y los parámetros registrados. Es la base de los resultados reproducibles.</p>
+        <p><b>Acceso.</b> Open OnDemand lleva el clúster al navegador, donde se pueden subir datos, lanzar trabajos, revisar resultados y usar Jupyter o RStudio sin configurar nada en el computador.</p>
+        <p><b>Red.</b> InfiniBand conecta los nodos a 40 Gb/s con muy baja latencia, para que el cálculo repartido no pierda tiempo comunicándose.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CASOS ============================== -->
+<section id="casos" class="band">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow">Impacto</p>
+      <h2 class="sec">Para qué se ha usado</h2>
+      <p class="lead">
+        Kütral nace del proyecto <em>Supercomputación para la Innovación en Salud Regional</em>, financiado por el
+        Gobierno Regional de O’Higgins a través del Fondo de Innovación para la Competitividad (FIC), en alianza
+        con el Hospital Regional Dr. Franco Ravera Zunino.
+      </p>
+    </div>
+
+    <div class="grid g4">
+      <article class="card reveal">
+        <div class="cardhead">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7CC2FF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 14.5L7 22l5-2.5L17 22l-1.5-7.5"/></svg></span>
+          <h3>Genoma humano chileno</h3>
+        </div>
+        <p>El clúster de la UOH hizo posible la construcción del primer genoma humano chileno completo.</p>
+      </article>
+      <article class="card reveal">
+        <div class="cardhead">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7CC2FF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></svg></span>
+          <h3>Medicina de precisión</h3>
+        </div>
+        <p>Análisis genómico y banco digital de imágenes de anatomía patológica para apoyar diagnósticos oncológicos.</p>
+      </article>
+      <article class="card reveal">
+        <div class="cardhead">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7CC2FF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.6"/><ellipse cx="12" cy="12" rx="9.2" ry="4"/><ellipse cx="12" cy="12" rx="9.2" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.2" ry="4" transform="rotate(120 12 12)"/></svg></span>
+          <h3>Ciencias e ingeniería</h3>
+        </div>
+        <p>Simulaciones en física de flujos granulares, ciencias atmosféricas y cálculo variacional.</p>
+      </article>
+      <article class="card reveal">
+        <div class="cardhead">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#7CC2FF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10z"/><path d="M2 21c0-3 1.9-5.4 5.1-6C9.5 14.5 12 13 13 12"/></svg></span>
+          <h3>Genomas de plantas</h3>
+        </div>
+        <p>Estudio de genomas complejos de plantas del norte de Chile y cromosomas sexuales en plantas.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CONTACTO ============================== -->
+<section id="contacto">
+  <div class="wrap">
+    <div class="contact">
+      <div class="reveal">
+        <p class="eyebrow">Contacto</p>
+        <h2 class="sec">Escríbenos</h2>
+        <p class="lead">
+          Cuéntanos qué datos necesitas procesar (tipo, volumen y objetivo) y te responderemos con una
+          evaluación de factibilidad y una propuesta de trabajo.
+        </p>
+      </div>
+
+      <div class="clist reveal">
+        <div class="citem">
+          <svg viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>Av. Libertador Bernardo O’Higgins 611, Campus Rancagua</span>
+        </div>
+        <div class="citem">
+          <svg viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 7l9 6 9-6"/></svg>
+          <a href="mailto:hpc@uoh.cl">hpc@uoh.cl</a>
+          <button class="copy" data-copy="hpc@uoh.cl" title="Copiar correo" aria-label="Copiar hpc@uoh.cl"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg></button>
+        </div>
+        <div class="citem">
+          <svg viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 7l9 6 9-6"/></svg>
+          <a href="mailto:seq@uoh.cl">seq@uoh.cl</a>
+          <button class="copy" data-copy="seq@uoh.cl" title="Copiar correo" aria-label="Copiar seq@uoh.cl"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg></button>
+        </div>
+        <div class="citem">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.5l3.5 2"/></svg>
+          <span><b>Horario de atención</b>Lunes a viernes, 9:00 a 17:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== INSTITUCIÓN ============================== -->
+<div class="partners">
+  <div class="wrap">
+    <div class="logos">
+      <img src="data:image/png;base64,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" alt="Universidad de O’Higgins">
+    </div>
+  </div>
+</div>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="frow">
+      <div>
+        <strong style="color:#fff; font-size:1rem">Kütral · HPC-UOH</strong><br>
+        Universidad de O’Higgins · Campus Rancagua
+      </div>
+      <div>
+        <p class="ftitle">Secciones</p>
+        <ul class="flist">
+          <li><a href="#servicios">Servicios</a></li>
+          <li><a href="#infra">Infraestructura</a></li>
+          <li><a href="#casos">Casos de uso</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="ftitle">Contacto</p>
+        <ul class="flist">
+          <li><a href="mailto:hpc@uoh.cl">hpc@uoh.cl</a></li>
+          <li><a href="mailto:seq@uoh.cl">seq@uoh.cl</a></li>
+          <li>Av. L. B. O’Higgins 611, Rancagua</li>
+          <li>hpc-uoh.cl · sequoh.cl</li>
+        </ul>
+      </div>
+    </div>
+    <p class="fine">
+      Proyecto financiado a través del Fondo de Innovación para la Competitividad (FIC) del Gobierno Regional
+      de O’Higgins y su Consejo Regional, enmarcado en la Estrategia Regional de Innovación.
+    </p>
+  </div>
+</footer>
+
+<div id="toast">Copiado</div>
+
+<script>
+(function(){
+  "use strict";
+  try{
+  var reduce = false;  /* animaciones siempre activas (página de stand) */
+
+  /* ---------- 1. Fondo animado del hero (red de partículas) ---------- */
+  (function(){
+    var cv = document.getElementById("net"); if(!cv || reduce) return;
+    var ctx = cv.getContext("2d"), dpr = Math.min(window.devicePixelRatio||1, 2);
+    var pts = [], W=0, H=0, raf;
+    function resize(){
+      var r = cv.parentElement.getBoundingClientRect();
+      W = r.width; H = r.height;
+      cv.width = W*dpr; cv.height = H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+      var n = Math.max(28, Math.min(70, Math.round(W/26)));
+      pts = [];
+      for(var i=0;i<n;i++) pts.push({x:Math.random()*W, y:Math.random()*H, vx:(Math.random()-.5)*.28, vy:(Math.random()-.5)*.28, r:1+Math.random()*1.8});
+    }
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      for(var i=0;i<pts.length;i++){
+        var p=pts[i]; p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>W) p.vx*=-1; if(p.y<0||p.y>H) p.vy*=-1;
+        for(var j=i+1;j<pts.length;j++){
+          var q=pts[j], dx=p.x-q.x, dy=p.y-q.y, d2=dx*dx+dy*dy;
+          if(d2 < 20000){
+            var a = (1 - d2/20000)*0.35;
+            ctx.strokeStyle = "rgba(124,194,255,"+a.toFixed(3)+")";
+            ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke();
+          }
+        }
+      }
+      for(var k=0;k<pts.length;k++){
+        var s=pts[k]; ctx.fillStyle="rgba(160,210,255,.75)";
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.283); ctx.fill();
+      }
+      raf = requestAnimationFrame(draw);
+    }
+    resize(); draw();
+    window.addEventListener("resize", function(){ cancelAnimationFrame(raf); resize(); draw(); });
+    document.addEventListener("visibilitychange", function(){
+      if(document.hidden) cancelAnimationFrame(raf); else { cancelAnimationFrame(raf); draw(); }
+    });
+  })();
+
+  /* ---------- 2. Header: fondo al hacer scroll + barra de progreso ---------- */
+  var hdr = document.getElementById("hdr"), prog = document.getElementById("prog");
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    hdr.classList.toggle("stuck", y > 12);
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    prog.style.width = (h > 0 ? (y/h)*100 : 0) + "%";
+  }
+  window.addEventListener("scroll", onScroll, {passive:true}); onScroll();
+
+  /* ---------- 3. Menú móvil ---------- */
+  var burger = document.getElementById("burger"), mob = document.getElementById("mobile");
+  burger.addEventListener("click", function(){ mob.classList.toggle("open"); document.body.style.overflow = mob.classList.contains("open") ? "hidden" : ""; });
+  mob.querySelectorAll("a").forEach(function(a){ a.addEventListener("click", function(){ mob.classList.remove("open"); document.body.style.overflow=""; }); });
+
+  /* ---------- 4. Aparición al hacer scroll (con retardo escalonado) ---------- */
+  var reveals = [].slice.call(document.querySelectorAll(".reveal"));
+  if("IntersectionObserver" in window && !reduce){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(!e.isIntersecting) return;
+        var el = e.target, parent = el.parentElement;
+        var sibs = [].slice.call(parent.children).filter(function(c){ return c.classList.contains("reveal"); });
+        var i = sibs.indexOf(el);
+        el.style.transitionDelay = (i > 0 ? Math.min(i*70, 350) : 0) + "ms";
+        el.classList.add("in");
+        io.unobserve(el);
+      });
+    }, {threshold:.14, rootMargin:"0px 0px -60px 0px"});
+    reveals.forEach(function(el){ io.observe(el); });
+  } else {
+    reveals.forEach(function(el){ el.classList.add("in"); });
+  }
+
+  /* ---------- 5. Contadores del hero ---------- */
+  function fmt(n){ return n.toLocaleString("es-CL"); }
+  function countUp(el){
+    var target = parseInt(el.dataset.count,10), suf = el.dataset.suffix || "";
+    if(reduce){ el.textContent = fmt(target)+suf; return; }
+    var t0 = null, dur = 1400;
+    function step(ts){
+      if(!t0) t0 = ts;
+      var p = Math.min((ts-t0)/dur, 1);
+      var eased = 1 - Math.pow(1-p, 3);
+      el.textContent = fmt(Math.round(target*eased)) + suf;
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var stats = [].slice.call(document.querySelectorAll("[data-count]"));
+  if("IntersectionObserver" in window){
+    var io2 = new IntersectionObserver(function(en){
+      en.forEach(function(e){ if(e.isIntersecting){ countUp(e.target); io2.unobserve(e.target); } });
+    }, {threshold:.4});
+    stats.forEach(function(s){ io2.observe(s); });
+  } else { stats.forEach(countUp); }
+
+  /* ---------- 6. Barras de infraestructura ---------- */
+  var bars = document.getElementById("bars");
+  if(bars && "IntersectionObserver" in window && !reduce){
+    var io3 = new IntersectionObserver(function(en){
+      en.forEach(function(e){
+        if(!e.isIntersecting) return;
+        bars.querySelectorAll(".fill").forEach(function(f,i){
+          setTimeout(function(){ f.style.width = f.dataset.w + "%"; }, i*140);
+        });
+        io3.unobserve(e.target);
+      });
+    }, {threshold:.3});
+    io3.observe(bars);
+  } else if(bars){
+    bars.querySelectorAll(".fill").forEach(function(f){ f.style.width = f.dataset.w + "%"; });
+  }
+
+  /* ---------- 8. Enlace activo según la sección visible ---------- */
+  var links = [].slice.call(document.querySelectorAll('#navmain a[href^="#"]'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute("href")); }).filter(Boolean);
+  if("IntersectionObserver" in window && secs.length){
+    var io4 = new IntersectionObserver(function(en){
+      en.forEach(function(e){
+        if(!e.isIntersecting) return;
+        links.forEach(function(a){ a.classList.toggle("on", a.getAttribute("href") === "#"+e.target.id); });
+      });
+    }, {rootMargin:"-45% 0px -50% 0px", threshold:0});
+    secs.forEach(function(s){ io4.observe(s); });
+  }
+
+  /* ---------- 9. Copiar correo ---------- */
+  var toast = document.getElementById("toast");
+  document.querySelectorAll(".copy").forEach(function(b){
+    b.addEventListener("click", function(){
+      var t = b.dataset.copy;
+      function say(msg){ toast.textContent = msg; toast.classList.add("show"); setTimeout(function(){ toast.classList.remove("show"); }, 1900); }
+      function ok(){ say("Copiado: " + t); }
+      function manual(){ say("No se pudo copiar automáticamente. Selecciona el correo y usa Ctrl+C."); }
+      function fallback(){
+        var i=document.createElement("textarea"); i.value=t; i.setAttribute("readonly","");
+        i.style.position="fixed"; i.style.opacity="0"; document.body.appendChild(i);
+        i.select(); var done=false;
+        try{ done = document.execCommand("copy"); }catch(e){ done=false; }
+        document.body.removeChild(i);
+        if(done) ok(); else manual();
+      }
+      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok, fallback); }
+      else fallback();
+    });
+  });
+  }catch(err){
+    document.querySelectorAll(".reveal").forEach(function(el){ el.classList.add("in"); });
+    if(window.console) console.error(err);
+  }
+})();
+</script>
+</body>
+</html>
